@@ -1,9 +1,10 @@
-﻿using BallGameExpertSystem.Core.KnowledgeBase;
-using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
+﻿using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
 using BallGameExpertSystem.Core.Model.Characteristics;
-using BallGameExpertSystem.Utilities.Builders;
+using BallGameExpertSystem.Startup.Utilities.Builders;
 
-namespace BallGameExpertSystem
+using static BallGameExpertSystem.Startup.Utilities.Constants.CharacteristicValuesConstants;
+
+namespace BallGameExpertSystem.Startup.Utilities
 {
     internal class KnowledgeBaseInitializer
     {
@@ -12,89 +13,89 @@ namespace BallGameExpertSystem
             #region Characteristics
 
             var ballShape = new BallBallGameCharacteristic(
-                "Ball Shape", new[] 
-                { 
-                    "Round", 
-                    "Oval" 
+                "Ball Shape", new[]
+                {
+                    Round,
+                    Oval
                 });
 
             var ballMaterial = new BallBallGameCharacteristic(
-                "Ball Material", new[] 
-                { 
-                    "Leather", 
-                    "Rubber" 
+                "Ball Material", new[]
+                {
+                    Leather,
+                    Rubber
                 });
 
             var ballSize = new BallBallGameCharacteristic(
-                "Ball Size", new[] 
-                { 
-                    "Small", 
-                    "Medium", 
-                    "Large" 
+                "Ball Size", new[]
+                {
+                    Small,
+                    Medium,
+                    Large
                 });
 
             var ballElasticity = new BallBallGameCharacteristic(
-                "Ball Elasticity", new[] 
-                { 
-                    "Low",                                           
-                    "Medium",                                           
-                    "High" 
+                "Ball Elasticity", new[]
+                {
+                    Low,
+                    Medium,
+                    High
                 });
 
             var ballColor = new BallBallGameCharacteristic(
-                "Ball Color", new[] 
-                { 
-                    "White", 
-                    "Orange", 
-                    "Yellow" 
+                "Ball Color", new[]
+                {
+                    White,
+                    Orange,
+                    Yellow
                 });
 
             var groundType = new PlaceBallGameCharacteristic(
-                "Ground Type", new[] 
-                { 
-                    "Stadium", 
-                    "Ground", 
-                    "Court" 
+                "Ground Type", new[]
+                {
+                    Stadium,
+                    Ground,
+                    Court
                 });
 
             var whereHeld = new PlaceBallGameCharacteristic(
-                "Where Held", new[] 
-                { 
-                    "Outdoors",                                      
-                    "Indoors" 
+                "Where Held", new[]
+                {
+                    Outdoors,
+                    Indoors
                 });
 
             var covering = new PlaceBallGameCharacteristic(
-                "Covering", new[] 
-                { 
-                    "Lawn", 
-                    "Soil", 
-                    "Rubber", 
-                    "Laminate" 
+                "Covering", new[]
+                {
+                    Lawn,
+                    Soil,
+                    Rubber,
+                    Laminate
                 });
 
             var area = new PlaceBallGameCharacteristic(
-                "Area", new[] 
-                { 
-                    "Small",                                
-                    "Medium",
-                    "Large" 
+                "Area", new[]
+                {
+                    Small,
+                    Medium,
+                    Large
                 });
 
             var numberOfTeams = new TeamBallGameCharacteristic(
-                "Number of Teams", new[] 
-                { 
-                    "1",
-                    "2"
+                "Number of Teams", new[]
+                {
+                    One,
+                    Two
                 });
 
             var playersInTeam = new TeamBallGameCharacteristic(
-                "Players in a Team", new[] 
-                { 
-                    "1",
-                    "2",                
-                    "5",
-                    "11"
+                "Players in a Team", new[]
+                {
+                    One,
+                    Two,
+                    Five,
+                    Eleven
                 });
 
             knowledgeBase.AddCharacteristics(new BallGameCharacteristic[]
@@ -102,7 +103,7 @@ namespace BallGameExpertSystem
                 ballShape,
                 ballMaterial,
                 ballSize,
-                ballElasticity, 
+                ballElasticity,
                 ballColor,
                 groundType,
                 whereHeld,
@@ -116,16 +117,43 @@ namespace BallGameExpertSystem
 
             #region Rules
 
-            InitializeGames(knowledgeBase);
+            var ruleGraphBuilder = new RuleGraphBuilder(knowledgeBase);
+
+            ruleGraphBuilder
+                .FirstCharacteristic(ballShape)
+                    .HasValue(Round)
+                .AndCharacteristic(ballMaterial)
+                    .HasValue(Rubber)
+                .AndCharacteristic(ballSize)
+                    .HasValue(Large)
+                .AndCharacteristic(ballElasticity)
+                    .HasValue(High)
+                .AndCharacteristic(ballColor)
+                    .HasValue(Orange)
+                .AndCharacteristic(groundType)
+                    .HasValue(Ground)
+                .AndCharacteristic(whereHeld)
+                    .HasValue(Indoors)
+                    .Or(Outdoors)
+                .AndCharacteristic(covering)
+                    .HasValue(Laminate)
+                    .Or(Rubber)
+                .AndCharacteristic(area)
+                    .HasValue(Medium)
+                .AndCharacteristic(numberOfTeams)
+                    .HasValue(Two)
+                .AndCharacteristic(playersInTeam)
+                    .HasValue(Five)
+                .Conclude("Баскетбол");
 
             #endregion
         }
 
-        protected static void InitializeGames(IBallGameKnowledgeBase knowledgeBase) 
+        protected static void InitializeGames(IBallGameKnowledgeBase knowledgeBase)
         {
             #region Games Initialization
             knowledgeBase.Rules.Add(
-                new BallGameBuilder("Європейський футбол")
+                new RuleGraphBuilder("Європейський футбол")
                 .Ball().OfShape(BallShape.Round)
                        .OfMaterial(BallMaterial.Leather)
                        .OfSize(BallSize.Medium)
@@ -140,7 +168,7 @@ namespace BallGameExpertSystem
                 .Build());
 
             knowledgeBase.Rules.Add(
-                new BallGameBuilder("Баскетбол")
+                new RuleGraphBuilder("Баскетбол")
                     .Ball().OfShape(BallShape.Round)
                            .OfMaterial(BallMaterial.Rubber)
                            .OfSize(BallSize.Large)
@@ -155,7 +183,7 @@ namespace BallGameExpertSystem
                     .Build());
 
             knowledgeBase.Rules.Add(
-                new BallGameBuilder("Великий теніс")
+                new RuleGraphBuilder("Великий теніс")
                     .Ball().OfShape(BallShape.Round)
                            .OfMaterial(BallMaterial.Rubber)
                            .OfSize(BallSize.Small)
