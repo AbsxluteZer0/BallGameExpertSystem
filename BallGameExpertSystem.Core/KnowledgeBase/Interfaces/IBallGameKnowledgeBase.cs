@@ -30,5 +30,20 @@ namespace BallGameExpertSystem.Core.KnowledgeBase.Interfaces
         {
             Characteristics.AddRange(characteristics);
         }
+
+        public bool ContainsCharacteristic(BallGameCharacteristic characteristic)
+        {
+            return Characteristics.Contains(characteristic);
+        }
+
+        public bool ContainsRule(Rule rule)
+        {
+            return Rules.Contains(rule);
+        }
+
+        Rule? GetRuleOrDefault(Rule rule)
+        {
+            return Rules.Find(r => r.Equals(rule));
+        }
     }
 }

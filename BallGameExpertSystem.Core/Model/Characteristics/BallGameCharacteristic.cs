@@ -38,5 +38,10 @@ namespace BallGameExpertSystem.Core.Model.Characteristics
 
             return Id == other.Id;
         }
+
+        public bool Takes(string value)
+        {
+            return PossibleValues.ContainsValue(value);
+        }
     }
 }

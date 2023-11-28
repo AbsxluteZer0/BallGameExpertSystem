@@ -1,6 +1,6 @@
 ﻿namespace BallGameExpertSystem.Core.Model.Rules
 {
-    public class AtomicRule : Rule
+    public class AtomicRule : Rule, IEquatable<AtomicRule>
     {
         private CharacteristicValue _value;
         public CharacteristicValue CharacteristicValue => _value;
@@ -23,6 +23,14 @@
                 IsObserved = true;
             else
                 IsObserved = false;
+        }
+
+        public bool Equals(AtomicRule? other)
+        {
+            if (other  == null) 
+                return false;
+
+            return _value.Equals(other._value);
         }
     }
 }
