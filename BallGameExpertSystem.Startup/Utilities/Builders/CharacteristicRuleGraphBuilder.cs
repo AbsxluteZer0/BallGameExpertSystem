@@ -5,33 +5,30 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class CharacteristicRuleGraphBuilder
     {
-        internal enum Operation
+        protected readonly IBallGameKnowledgeBase _knowledgeBase;
+
+        internal enum RelationshipType
         {
             AND,
             OR
         }
 
-        protected readonly IBallGameKnowledgeBase _knowledgeBase;
+        internal BallGameCharacteristic CurrentCharacteristic { get; set; } = null!;
+        internal RelationshipType PreviousCharacteristicRelationship { get; set; }
 
         public CharacteristicRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase)
         {
             _knowledgeBase = knowledgeBase;
         }
 
-        public ValueRuleGraphBuilder AndCharacteristic(BallGameCharacteristic characteristic)
+        public ValueRuleGraphBuilder Characteristic(BallGameCharacteristic characteristic)
         {
             if (!_knowledgeBase.ContainsCharacteristic(characteristic))
                 throw new ArgumentException("There's no such characteristic in the knowledge base.", nameof(characteristic));
 
-            return new ValueRuleGraphBuilder(_knowledgeBase, characteristic, Operation.AND);
-        }
+            CurrentCharacteristic = characteristic;
 
-        public ValueRuleGraphBuilder OrCharacteristic(BallBallGameCharacteristic characteristic)
-        {
-            if (!_knowledgeBase.ContainsCharacteristic(characteristic))
-                throw new ArgumentException("There's no such characteristic in the knowledge base.", nameof(characteristic));
-
-            return new ValueRuleGraphBuilder(_knowledgeBase, characteristic, Operation.OR);
+            return new ValueRuleGraphBuilder(_knowledgeBase, this);
         }
     }
 }

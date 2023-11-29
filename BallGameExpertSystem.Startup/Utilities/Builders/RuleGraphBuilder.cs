@@ -14,6 +14,6 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
             _knowledgeBase = knowledgeBase;
         }
 
-        public CharacteristicRuleGraphBuilder Initiate() => new CharacteristicRuleGraphBuilder(_knowledgeBase);
+        public CharacteristicRuleGraphBuilder Start() => new CharacteristicRuleGraphBuilder(_knowledgeBase);
     }
 }

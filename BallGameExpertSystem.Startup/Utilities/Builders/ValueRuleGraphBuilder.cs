@@ -7,40 +7,32 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class ValueRuleGraphBuilder : CharacteristicRuleGraphBuilder
     {
-        private readonly BallGameCharacteristic _characteristic;
-        private readonly Operation _operation;
+        private readonly CharacteristicRuleGraphBuilder _characteristicRuleGraphBuilde;
 
         internal ValueRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase, 
-            BallGameCharacteristic characteristic,
-            Operation operation) : base(knowledgeBase)
+            CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder) : base(knowledgeBase)
         {
-            _characteristic = characteristic;
-            _operation = operation;
+            _characteristicRuleGraphBuilde = characteristicRuleGraphBuilder;
         }
 
-        public ValueRuleGraphBuilder HasValue(string value)
+        public ChainRuleGraphBuilder HasValue(string value)
         {
-            if (!_characteristic.Takes(value))
+            BallGameCharacteristic characteristic = _characteristicRuleGraphBuilde.CurrentCharacteristic;
+
+            if (!characteristic.Takes(value))
                 throw new ArgumentException(
                     "The characteristic cannot take the specified value.", 
                     nameof(value));
 
             var atomicRule = new AtomicRule(
-                new CharacteristicValue(_characteristic, value));
+                new CharacteristicValue(characteristic, value));
 
             atomicRule = _knowledgeBase.GetRuleOrDefault(atomicRule) as AtomicRule 
                          ?? atomicRule;
 
 
 
-            return this;
+            return new ChainRuleGraphBuilder(_characteristicRuleGraphBuilde, this);
         }
-
-        public ValueRuleGraphBuilder Or(string value) 
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Conclude(string conclusion) => this;
     }
 }
