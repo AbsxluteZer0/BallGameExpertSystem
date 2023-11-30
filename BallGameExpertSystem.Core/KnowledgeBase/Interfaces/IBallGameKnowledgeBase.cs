@@ -36,12 +36,17 @@ namespace BallGameExpertSystem.Core.KnowledgeBase.Interfaces
             return Characteristics.Contains(characteristic);
         }
 
+        public void AddRule(Rule rule)
+        {
+            Rules.Add(rule);
+        }
+
         public bool ContainsRule(Rule rule)
         {
             return Rules.Contains(rule);
         }
 
-        Rule? GetRuleOrDefault(Rule rule)
+        Rule? FindRuleOrDefault(Rule rule)
         {
             return Rules.Find(r => r.Equals(rule));
         }
