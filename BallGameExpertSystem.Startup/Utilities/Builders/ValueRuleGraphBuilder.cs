@@ -5,13 +5,18 @@ using BallGameExpertSystem.Core.Model.Rules;
 
 namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
-    internal class ValueRuleGraphBuilder : CharacteristicRuleGraphBuilder
+    internal class ValueRuleGraphBuilder
     {
+        private readonly IBallGameKnowledgeBase _knowledgeBase;
+        private readonly RuleGraphBuilderStore _ruleGraphBuilderStore;
         private readonly CharacteristicRuleGraphBuilder _characteristicRuleGraphBuilde;
 
-        internal ValueRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase, 
-            CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder) : base(knowledgeBase)
+        internal ValueRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase,
+            RuleGraphBuilderStore ruleGraphBuilderStore,
+            CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder)
         {
+            _knowledgeBase = knowledgeBase;
+            _ruleGraphBuilderStore = ruleGraphBuilderStore;
             _characteristicRuleGraphBuilde = characteristicRuleGraphBuilder;
         }
 
@@ -24,15 +29,25 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
                     "The characteristic cannot take the specified value.", 
                     nameof(value));
 
+            // First characteristic
+
             var atomicRule = new AtomicRule(
                 new CharacteristicValue(characteristic, value));
 
-            atomicRule = _knowledgeBase.GetRuleOrDefault(atomicRule) as AtomicRule 
-                         ?? atomicRule;
+            if (!_knowledgeBase.ContainsRule(atomicRule))
+                _knowledgeBase.AddRule(atomicRule);
+
+            _ruleGraphBuilderStore.AddCurrentSessionRule(atomicRule);
 
 
 
-            return new ChainRuleGraphBuilder(_characteristicRuleGraphBuilde, this);
+            // And characteristic
+
+
+
+            // Or characteristic
+
+            return new ChainRuleGraphBuilder(_ruleGraphBuilderStore, _characteristicRuleGraphBuilde, this);
         }
     }
 }

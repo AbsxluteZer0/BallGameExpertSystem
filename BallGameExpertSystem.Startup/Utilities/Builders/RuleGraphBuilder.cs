@@ -1,7 +1,4 @@
 ﻿using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
-using BallGameExpertSystem.Core.Model;
-using BallGameExpertSystem.Core.Model.Characteristics;
-using BallGameExpertSystem.Core.Model.Rules;
 
 namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
@@ -14,6 +11,10 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
             _knowledgeBase = knowledgeBase;
         }
 
-        public CharacteristicRuleGraphBuilder Start() => new CharacteristicRuleGraphBuilder(_knowledgeBase);
+        public CharacteristicRuleGraphBuilder Start()
+        {
+            RuleGraphBuilderStore store = new RuleGraphBuilderStore();
+            return new CharacteristicRuleGraphBuilder(_knowledgeBase, store);
+        }
     }
 }
