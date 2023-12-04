@@ -2,7 +2,7 @@
 
 namespace BallGameExpertSystem.Core.Model.Rules
 {
-    public class ORRule : Rule
+    public class ORRule : Rule, IEquatable<ORRule>
     {
         public override List<Rule>? Predcessors { get; }
         public override List<Rule>? Successors { get; } = new List<Rule>();
@@ -21,6 +21,22 @@ namespace BallGameExpertSystem.Core.Model.Rules
                 IsObserved = true;
             else
                 IsObserved = false;
+        }
+
+        public bool Equals(ORRule? other)
+        {
+            if (other == null)
+                return false;
+
+            if (Predcessors == null
+                && other.Predcessors == null)
+                return true;
+
+            if (Predcessors == null
+                || other.Predcessors == null)
+                return false;
+
+            return true;
         }
     }
 }
