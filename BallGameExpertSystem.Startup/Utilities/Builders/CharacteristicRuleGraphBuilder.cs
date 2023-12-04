@@ -8,14 +8,14 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
         private readonly IBallGameKnowledgeBase _knowledgeBase;
         private readonly RuleGraphBuilderStore _ruleGraphBuilderStore;
 
-        internal enum RelationshipType
+        internal enum Relationship
         {
             AND,
             OR
         }
 
         internal BallGameCharacteristic CurrentCharacteristic { get; set; } = null!;
-        internal RelationshipType PreviousCharacteristicRelationship { get; set; } = RelationshipType.AND;
+        internal Relationship PreviousCharacteristicRelationship { get; set; } = Relationship.AND;
 
         public CharacteristicRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase,
             RuleGraphBuilderStore ruleGraphBuilderStore)

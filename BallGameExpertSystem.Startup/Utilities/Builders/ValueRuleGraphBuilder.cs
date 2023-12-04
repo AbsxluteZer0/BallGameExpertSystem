@@ -3,6 +3,8 @@ using BallGameExpertSystem.Core.Model;
 using BallGameExpertSystem.Core.Model.Characteristics;
 using BallGameExpertSystem.Core.Model.Rules;
 
+using static BallGameExpertSystem.Startup.Utilities.Builders.CharacteristicRuleGraphBuilder;
+
 namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class ValueRuleGraphBuilder
@@ -22,30 +24,28 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 
         public ChainRuleGraphBuilder HasValue(string value)
         {
-            BallGameCharacteristic characteristic = _characteristicRuleGraphBuilde.CurrentCharacteristic;
+            BallGameCharacteristic characteristic 
+                = _characteristicRuleGraphBuilde.CurrentCharacteristic;
 
             if (!characteristic.Takes(value))
                 throw new ArgumentException(
-                    "The characteristic cannot take the specified value.", 
+                    "The characteristic cannot take the specified value.",
                     nameof(value));
-
-            // First characteristic
 
             var atomicRule = new AtomicRule(
                 new CharacteristicValue(characteristic, value));
 
-            if (!_knowledgeBase.ContainsRule(atomicRule))
-                _knowledgeBase.AddRule(atomicRule);
+            Relationship characteristicRelationship
+                = _characteristicRuleGraphBuilde.PreviousCharacteristicRelationship;
 
-            _ruleGraphBuilderStore.AddCurrentSessionRule(atomicRule);
-
-
-
-            // And characteristic
-
-
-
-            // Or characteristic
+            if (characteristicRelationship == Relationship.AND)
+            {
+                _ruleGraphBuilderStore.AddSingleRule(atomicRule);
+            }
+            else if (characteristicRelationship == Relationship.OR)
+            {
+                _ruleGraphBuilderStore.AddRuleToDisjunction(atomicRule);
+            }
 
             return new ChainRuleGraphBuilder(_ruleGraphBuilderStore, _characteristicRuleGraphBuilde, this);
         }
