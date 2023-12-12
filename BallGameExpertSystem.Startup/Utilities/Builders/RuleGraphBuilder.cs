@@ -13,8 +13,8 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 
         public CharacteristicRuleGraphBuilder Start()
         {
-            RuleGraphBuilderStore store = new RuleGraphBuilderStore();
-            return new CharacteristicRuleGraphBuilder(_knowledgeBase, store);
+            RuleGraphBuilderStore store = new RuleGraphBuilderStore(_knowledgeBase);
+            return new CharacteristicRuleGraphBuilder(store);
         }
     }
 }

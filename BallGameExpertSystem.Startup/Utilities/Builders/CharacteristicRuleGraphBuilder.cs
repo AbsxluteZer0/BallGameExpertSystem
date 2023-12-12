@@ -1,11 +1,9 @@
-﻿using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
-using BallGameExpertSystem.Core.Model.Characteristics;
+﻿using BallGameExpertSystem.Core.Model.Characteristics;
 
 namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class CharacteristicRuleGraphBuilder
     {
-        private readonly IBallGameKnowledgeBase _knowledgeBase;
         private readonly RuleGraphBuilderStore _ruleGraphBuilderStore;
 
         internal enum Relationship
@@ -17,10 +15,8 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
         internal BallGameCharacteristic CurrentCharacteristic { get; set; } = null!;
         internal Relationship PreviousCharacteristicRelationship { get; set; } = Relationship.AND;
 
-        public CharacteristicRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase,
-            RuleGraphBuilderStore ruleGraphBuilderStore)
+        public CharacteristicRuleGraphBuilder(RuleGraphBuilderStore ruleGraphBuilderStore)
         {
-            _knowledgeBase = knowledgeBase;
             _ruleGraphBuilderStore = ruleGraphBuilderStore;
         }
 
@@ -31,7 +27,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 
             CurrentCharacteristic = characteristic;
 
-            return new ValueRuleGraphBuilder(_knowledgeBase, _ruleGraphBuilderStore, this);
+            return new ValueRuleGraphBuilder(_ruleGraphBuilderStore, this);
         }
     }
 }

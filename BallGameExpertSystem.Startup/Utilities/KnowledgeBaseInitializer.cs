@@ -119,8 +119,33 @@ namespace BallGameExpertSystem.Startup.Utilities
 
             var ruleGraphBuilder = new RuleGraphBuilder(knowledgeBase);
 
-            ruleGraphBuilder
-                .FirstCharacteristic(ballShape)
+            ruleGraphBuilder.Start()
+                .Characteristic(ballShape)
+                    .HasValue(Round)
+                .AndCharacteristic(ballMaterial)
+                    .HasValue(Leather)
+                .AndCharacteristic(ballSize)
+                    .HasValue(Medium)
+                .AndCharacteristic(ballElasticity)
+                    .HasValue(Low)
+                .AndCharacteristic(ballColor)
+                    .HasValue(White)
+                .AndCharacteristic(groundType)
+                    .HasValue(Stadium)
+                .AndCharacteristic(whereHeld)
+                    .HasValue(Outdoors)
+                .AndCharacteristic(covering)
+                    .HasValue(Lawn)
+                .AndCharacteristic(area)
+                    .HasValue(Large)
+                .AndCharacteristic(numberOfTeams)
+                    .HasValue(Two)
+                .AndCharacteristic(playersInTeam)
+                    .HasValue(Eleven)
+                .Conclude("Європейський футбол");
+
+            ruleGraphBuilder.Start()
+                .Characteristic(ballShape)
                     .HasValue(Round)
                 .AndCharacteristic(ballMaterial)
                     .HasValue(Rubber)
@@ -146,56 +171,35 @@ namespace BallGameExpertSystem.Startup.Utilities
                     .HasValue(Five)
                 .Conclude("Баскетбол");
 
-            #endregion
-        }
+            ruleGraphBuilder.Start()
+                .Characteristic(ballShape)
+                    .HasValue(Round)
+                .AndCharacteristic(ballMaterial)
+                    .HasValue(Rubber)
+                .AndCharacteristic(ballSize)
+                    .HasValue(Small)
+                .AndCharacteristic(ballElasticity)
+                    .HasValue(Medium)
+                .AndCharacteristic(ballColor)
+                    .HasValue(Yellow)
+                .AndCharacteristic(groundType)
+                    .HasValue(Court)
+                .AndCharacteristic(whereHeld)
+                    .HasValue(Outdoors)
+                    .Or(Indoors)
+                .AndCharacteristic(covering)
+                    .HasValue(Lawn)
+                    .Or(Soil)
+                    .Or(Rubber)
+                .AndCharacteristic(area)
+                    .HasValue(Medium)
+                .AndCharacteristic(numberOfTeams)
+                    .HasValue(Two)
+                .AndCharacteristic(playersInTeam)
+                    .HasValue(One)
+                    .Or(Two)
+                .Conclude("Великий теніс");
 
-        protected static void InitializeGames(IBallGameKnowledgeBase knowledgeBase)
-        {
-            #region Games Initialization
-            knowledgeBase.Rules.Add(
-                new RuleGraphBuilder("Європейський футбол")
-                .Ball().OfShape(BallShape.Round)
-                       .OfMaterial(BallMaterial.Leather)
-                       .OfSize(BallSize.Medium)
-                       .OfElasticity(BallElasticity.Low)
-                       .OfColor(BallColor.White)
-                .Ground().OfType(GroundType.Stadium)
-                         .Is(WhereHeld.Outdoors)
-                         .CoveredWith(Covering.Lawn)
-                         .OfArea(Area.Large)
-                .Team().Count(2)
-                       .WithNumberOfPlayers(11)
-                .Build());
-
-            knowledgeBase.Rules.Add(
-                new RuleGraphBuilder("Баскетбол")
-                    .Ball().OfShape(BallShape.Round)
-                           .OfMaterial(BallMaterial.Rubber)
-                           .OfSize(BallSize.Large)
-                           .OfElasticity(BallElasticity.High)
-                           .OfColor(BallColor.Orange)
-                    .Ground().OfType(GroundType.Ground)
-                             .Is(WhereHeld.Outdoors, WhereHeld.Indoors)
-                             .CoveredWith(Covering.Laminate, Covering.Rubber)
-                             .OfArea(Area.Medium)
-                    .Team().Count(2)
-                           .WithNumberOfPlayers(5)
-                    .Build());
-
-            knowledgeBase.Rules.Add(
-                new RuleGraphBuilder("Великий теніс")
-                    .Ball().OfShape(BallShape.Round)
-                           .OfMaterial(BallMaterial.Rubber)
-                           .OfSize(BallSize.Small)
-                           .OfElasticity(BallElasticity.Medium)
-                           .OfColor(BallColor.Yellow)
-                    .Ground().OfType(GroundType.Court)
-                             .Is(WhereHeld.Outdoors, WhereHeld.Indoors)
-                             .CoveredWith(Covering.Lawn, Covering.Soil, Covering.Rubber)
-                             .OfArea(Area.Medium)
-                    .Team().Count(2)
-                           .WithNumberOfPlayers(new int[] { 1, 2 })
-                    .Build());
             #endregion
         }
     }

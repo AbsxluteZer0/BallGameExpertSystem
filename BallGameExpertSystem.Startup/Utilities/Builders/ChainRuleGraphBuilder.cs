@@ -1,4 +1,5 @@
-﻿using BallGameExpertSystem.Core.Model;
+﻿using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
+using BallGameExpertSystem.Core.Model;
 using BallGameExpertSystem.Core.Model.Characteristics;
 using BallGameExpertSystem.Core.Model.Rules;
 using static BallGameExpertSystem.Startup.Utilities.Builders.CharacteristicRuleGraphBuilder;
@@ -20,7 +21,6 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
             _valueRuleGraphBuilder = valueRuleGraphBuilder;
         }
 
-
         /*
          * Class methods logic
          * 
@@ -30,7 +30,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
          * There is probably a more sophisticated way to do that.
         */
 
-        public ChainRuleGraphBuilder OrValue(string value)
+        public ChainRuleGraphBuilder Or(string value)
         {
             BallGameCharacteristic characteristic 
                 = _characteristicRuleGraphBuilder.CurrentCharacteristic;
@@ -64,12 +64,20 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
         {
             _ruleGraphBuilderStore.TryCloseDisjunction();
 
-            // Go through all of the:
-            //_ruleGraphBuilder.CurrentSessionRules;
-            // Ensure theyre connected
-            // and create a FinalConclusion(conclusion) for them
+            FinalConclusion finalConclusion = new FinalConclusion(
+                _ruleGraphBuilderStore.FinalConjunctionRules,
+                conclusion);
 
-            throw new NotImplementedException();
+            AddRuleGraphToKnowledgeBase(finalConclusion, _ruleGraphBuilderStore.KnowledgeBase);
+        }
+
+
+        private void AddRuleGraphToKnowledgeBase(Rule rule,  IBallGameKnowledgeBase knowledgeBase) 
+        {
+            knowledgeBase.AddRule(rule);
+
+            if (rule.Predcessors != null)
+                rule.Predcessors.ForEach(r => AddRuleGraphToKnowledgeBase(r, knowledgeBase));
         }
     }
 }

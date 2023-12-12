@@ -1,5 +1,4 @@
-﻿using BallGameExpertSystem.Core.KnowledgeBase.Interfaces;
-using BallGameExpertSystem.Core.Model;
+﻿using BallGameExpertSystem.Core.Model;
 using BallGameExpertSystem.Core.Model.Characteristics;
 using BallGameExpertSystem.Core.Model.Rules;
 
@@ -9,22 +8,19 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class ValueRuleGraphBuilder
     {
-        private readonly IBallGameKnowledgeBase _knowledgeBase;
         private readonly RuleGraphBuilderStore _ruleGraphBuilderStore;
         private readonly CharacteristicRuleGraphBuilder _characteristicRuleGraphBuilde;
 
-        internal ValueRuleGraphBuilder(IBallGameKnowledgeBase knowledgeBase,
-            RuleGraphBuilderStore ruleGraphBuilderStore,
+        internal ValueRuleGraphBuilder(RuleGraphBuilderStore ruleGraphBuilderStore,
             CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder)
         {
-            _knowledgeBase = knowledgeBase;
             _ruleGraphBuilderStore = ruleGraphBuilderStore;
             _characteristicRuleGraphBuilde = characteristicRuleGraphBuilder;
         }
 
         public ChainRuleGraphBuilder HasValue(string value)
         {
-            BallGameCharacteristic characteristic 
+            BallGameCharacteristic characteristic
                 = _characteristicRuleGraphBuilde.CurrentCharacteristic;
 
             if (!characteristic.Takes(value))
