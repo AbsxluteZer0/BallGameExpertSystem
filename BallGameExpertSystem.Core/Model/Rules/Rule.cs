@@ -9,7 +9,11 @@
         public virtual bool IsObserved
         {
             get => isObserved;
-            protected set { if (!IsLocked) isObserved = value; }
+            protected set 
+            { 
+                if (!IsLocked) 
+                    isObserved = value; 
+            }
         }
         public virtual bool IsLocked { get; private set; }
         public virtual int Depth => CalculateDepth();
