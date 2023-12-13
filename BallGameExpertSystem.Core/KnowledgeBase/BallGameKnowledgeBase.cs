@@ -113,6 +113,7 @@ namespace BallGameExpertSystem.Core.KnowledgeBase
 
                 foreach (var predecessor in predecessors)
                 {
+                    AddRule(predecessor);
                     Rule actualPredecessor = Actualize(predecessor); // get the actual predecessor from the knowledge base
                     rule.DisjointPredecessor(predecessor);           // remove the obsolete predecessor
                     rule.AddPredecessor(actualPredecessor);          // link the actual predecessor to the rule

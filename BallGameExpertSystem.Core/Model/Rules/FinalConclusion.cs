@@ -11,31 +11,16 @@
 
         public bool Equals(FinalConclusion? other)
         {
-            if (other == null) 
-                return false;
+            bool? baseEquals = BaseEquals(other);
+            if (baseEquals != null)
+                return (bool)baseEquals;
 
-            if (Text != other.Text) 
-                return false;
-
-            if (Predecessors == null 
-                && other.Predecessors == null)
-                return true;
-
-            if (Predecessors == null
-                || other.Predecessors == null)
-                return false;
-
-            return Predecessors.SequenceEqual(other.Predecessors);
+            return Text == other!.Text
+                && Predecessors.SequenceEqual(other.Predecessors);
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as FinalConclusion);
-        }
+        public override bool Equals(object? obj) => Equals(obj as FinalConclusion);
 
-        public override int GetHashCode()
-        {
-            return Text.GetHashCode();
-        }
+        public override int GetHashCode() => Text.GetHashCode();
     }
 }

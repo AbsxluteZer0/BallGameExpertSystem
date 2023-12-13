@@ -62,5 +62,21 @@
             predecessor.Successors?.Remove(this);
             Predecessors?.Remove(predecessor);
         }
+
+        public abstract override bool Equals(object? other);
+
+        public abstract override int GetHashCode();
+
+        protected virtual bool? BaseEquals(object? other)
+        {
+            if (other == null)
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            if (GetType() != other.GetType())
+                return false;
+
+            return null;
+        }       
     }
 }

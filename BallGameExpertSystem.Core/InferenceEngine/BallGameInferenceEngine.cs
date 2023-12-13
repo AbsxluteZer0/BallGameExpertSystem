@@ -104,7 +104,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                         = GetTheBestCharacteristicSuggestion(possibleConclusions);
 
                     if (characteristicSuggestion != null)
-                        result = new CharacteristicValue(characteristicSuggestion, -1);
+                        result = new CharacteristicValue(characteristicSuggestion);
                     break;                   
             }
 
@@ -166,12 +166,6 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             return uniqueSuccessors;
         }
 
-        private IEnumerable<Rule> ObtainUniqueCommonSuccessors(IEnumerable<Rule> rules)
-        {
-            return ObtainUniqueSuccessors(rules)
-                .Where(s => rules.All(r => r.IsPredecessorOf(s)));
-        }
-
         private IEnumerable<Rule> ObtainUniquePredecessors(IEnumerable<Rule> rules)
         {
             var uniquePredecessors = new HashSet<Rule>();
@@ -209,24 +203,29 @@ namespace BallGameExpertSystem.Core.InferenceEngine
 
         private IEnumerable<FinalConclusion> GetPossibleConclusions(IEnumerable<Rule> observedRules)
         {
-            IEnumerable<Rule> uniqueCommonSuccessors = ObtainUniqueCommonSuccessors(observedRules);
+            IEnumerable<Rule> uniqueSuccessors = ObtainUniqueSuccessors(observedRules);
 
-            var result = new HashSet<FinalConclusion>();
+            var relatedFinalConclusions = new HashSet<FinalConclusion>();
 
             do
             {
                 IEnumerable<FinalConclusion?> foundConclusions
-                    = uniqueCommonSuccessors.Where(r => r is FinalConclusion)
+                    = uniqueSuccessors.Where(r => r is FinalConclusion)
                                       .Select(fc => fc as FinalConclusion);
 
                 if (foundConclusions != null)
-                    result.UnionWith(foundConclusions as IEnumerable<FinalConclusion>);
+                    relatedFinalConclusions.UnionWith(foundConclusions as IEnumerable<FinalConclusion>);
 
-                uniqueCommonSuccessors = ObtainUniqueCommonSuccessors(uniqueCommonSuccessors);
+                uniqueSuccessors = ObtainUniqueSuccessors(uniqueSuccessors);
 
-            } while (uniqueCommonSuccessors.Any());
+            } while (uniqueSuccessors.Any());
 
-            return result;
+
+            var commonRelatedFinalConclusions
+                = relatedFinalConclusions.Where(fc => 
+                    observedRules.All(obs => obs.IsPredecessorOf(fc)));
+
+            return commonRelatedFinalConclusions;
         }
 
         private void ProcessSingleConclusion(FinalConclusion conclusion)
@@ -263,7 +262,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
         /// 1) related atomic rules w/o those unnecessary to ask;<br/>
         /// 2) all related atomic rules if there is nothing to reduce.
         /// </returns>
-        private List<AtomicRule> TryReduceAtomicRules(FinalConclusion possibleConclusions) // IEnumerable<FinalConclusion>
+        private List<AtomicRule> TryReduceAtomicRules(FinalConclusion possibleConclusions)
         {
             List<AtomicRule> relatedAtomicRules
                = GetAllRelatedAtomicRules(new List<FinalConclusion>() { possibleConclusions }).ToList();

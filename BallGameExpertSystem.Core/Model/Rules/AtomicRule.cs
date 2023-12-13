@@ -1,6 +1,6 @@
 ﻿namespace BallGameExpertSystem.Core.Model.Rules;
 
-    public class AtomicRule : Rule, IEquatable<AtomicRule>, IEquatable<Rule>
+    public class AtomicRule : Rule, IEquatable<AtomicRule>
     {
         private CharacteristicValue _value;
         public CharacteristicValue CharacteristicValue => _value;
@@ -43,19 +43,8 @@
                 && _value.Equals(other._value);
         }
 
-        public bool Equals(Rule? other)
-        {
-            return Equals(other as AtomicRule);
-        }
+        public override bool Equals(object? obj) => Equals(obj as AtomicRule);
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as AtomicRule);
-        }
-
-        public override int GetHashCode()
-        {
-            return _value.GetHashCode();
-        }
+        public override int GetHashCode() => _value.GetHashCode();
     }
 

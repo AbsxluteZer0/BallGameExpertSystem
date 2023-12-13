@@ -18,6 +18,11 @@ namespace BallGameExpertSystem.Core.Model.Characteristics
                                            .ToImmutableDictionary();           
         }
 
+        public bool Takes(string value)
+        {
+            return PossibleValues.ContainsValue(value);
+        }
+
         public virtual int CompareTo(BallGameCharacteristic? other)
         {
             if (other == null) 
@@ -39,19 +44,8 @@ namespace BallGameExpertSystem.Core.Model.Characteristics
             return Id == other.Id;
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as BallGameCharacteristic);
-        }
+        public override bool Equals(object? obj) => Equals(obj as BallGameCharacteristic);
 
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public bool Takes(string value)
-        {
-            return PossibleValues.ContainsValue(value);
-        }
+        public override int GetHashCode() => Id.GetHashCode();
     }
 }

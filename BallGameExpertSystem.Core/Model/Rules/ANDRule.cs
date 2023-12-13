@@ -25,22 +25,19 @@ namespace BallGameExpertSystem.Core.Model.Rules
 
         public bool Equals(ANDRule? other)
         {
-            if (other == null)
-                return false;
-
-            if (other is FinalConclusion)
-                return false;
+            bool? baseEquals = BaseEquals(other);
+            if (baseEquals != null)
+                return (bool)baseEquals;
 
             if (Predecessors == null
-                && other.Predecessors == null)
+                && other!.Predecessors == null)
                 return true;
 
             if (Predecessors == null
-                || other.Predecessors == null)
+                || other!.Predecessors == null)
                 return false;
 
-            return other.Predecessors
-                        .SequenceEqual(Predecessors);
+            return Predecessors.ScrambledEquals(other.Predecessors);
         }
 
         public override bool Equals(object? obj)
@@ -50,7 +47,12 @@ namespace BallGameExpertSystem.Core.Model.Rules
 
         public override int GetHashCode()
         {
-            return Predecessors.GetHashCode();
+            int hash = nameof(ANDRule).GetHashCode();
+
+            foreach (var rule in Predecessors)
+                hash ^= rule.GetHashCode();
+
+            return hash;
         }
     }
 }

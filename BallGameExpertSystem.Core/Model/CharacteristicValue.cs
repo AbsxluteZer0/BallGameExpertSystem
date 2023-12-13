@@ -30,15 +30,15 @@ namespace BallGameExpertSystem.Core.Model
 
         public bool Equals(CharacteristicValue? other)
         {
-            if (other == null) return false;
+            if (other == null) 
+                return false;
 
             return Characteristic.Equals(other.Characteristic)
                 && Value == other.Value;
         }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Characteristic, Value);
-        }
+        public override bool Equals(object? obj) => Equals(obj as CharacteristicValue);
+
+        public override int GetHashCode() => (Characteristic, Value).GetHashCode();
     }
 }

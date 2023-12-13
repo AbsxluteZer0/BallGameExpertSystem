@@ -12,7 +12,7 @@ namespace BallGameExpertSystem.ConsoleUI.UserInterface
         protected virtual void ShowMenu(IDictionary<int, string> menu)
         {
             foreach (KeyValuePair<int, string> m in menu)
-                Console.WriteLine($"{m.Key} - {m.Value}");
+                Console.WriteLine($"{m.Key}) {m.Value}");
         }
 
         public string RequestInput(string message)
@@ -58,6 +58,7 @@ namespace BallGameExpertSystem.ConsoleUI.UserInterface
             ShowMessage(question);
             ShowMenu(options);
 
+            Console.Write("Your answer: ");
             string? str = Console.ReadLine();
             int answerId = -1;
 
