@@ -1,4 +1,6 @@
-﻿namespace BallGameExpertSystem.Core.Model.Rules
+﻿using BallGameExpertSystem.Core.Extensions;
+
+namespace BallGameExpertSystem.Core.Model.Rules
 {
     public class FinalConclusion : ANDRule, IEquatable<FinalConclusion>
     {
@@ -16,7 +18,7 @@
                 return (bool)baseEquals;
 
             return Text == other!.Text
-                && Predecessors.SequenceEqual(other.Predecessors);
+                && Predecessors.ScrambledEquals(other.Predecessors);
         }
 
         public override bool Equals(object? obj) => Equals(obj as FinalConclusion);

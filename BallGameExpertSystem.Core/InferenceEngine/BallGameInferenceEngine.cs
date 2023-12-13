@@ -17,11 +17,14 @@ namespace BallGameExpertSystem.Core.InferenceEngine
         private ImmutableList<Rule>? _rules;
 
         private List<BallGameCharacteristic>? _availableCharacteristics;
-        private Stack<CharacteristicValue>? _pendingCharValueSuggestions; // for SingleSuggestion state only
+
+        // For SingleSuggestion state only
+        private Stack<CharacteristicValue>? _pendingCharValueSuggestions;
+        private int excessiveSuggestions;
 
         public IBallGameInferenceEngine.State CurrentState { get; private set; } = IBallGameInferenceEngine.State.NoContext;
 
-        private FinalConclusion? conclusion;
+        private FinalConclusion? _conclusion;
         public string Conclusion
         {
             get
@@ -37,7 +40,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                         throw new InferenceEngineNotEnoughDataToConclude(this);
 
                     case IBallGameInferenceEngine.State.Conclusion:
-                        return conclusion?.Text ?? "Couldn't find a game that meets the specified requirements.";
+                        return _conclusion?.Text ?? "Couldn't find a game that meets the specified requirements.";
 
                     default:
                         return "Error";
@@ -119,16 +122,26 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                 throw new UnexpectedException(
                     $"The collection {nameof(_pendingCharValueSuggestions)} isn't supposed to be empty.");
 
+            CharacteristicValue suggestion;
+
             ProcessInput(input);
 
-            // here the graph and available characteristics are updated
-            // you may want to check whether the conclusion is observed
+            // if there are several OR-related values for single characteristic
+            // additional values for the characteristic are asked only if the answer is negative
+            int currentSuggestionsCount = _pendingCharValueSuggestions
+                .Where(cv => cv.Characteristic.Equals(input.Characteristic))
+                .Count();
 
-            if (_pendingCharValueSuggestions.Peek().Equals(input))
+            excessiveSuggestions = currentSuggestionsCount - 1;
+
+            if (_pendingCharValueSuggestions.Peek()
+                                            .Equals(input))
             {
                 _pendingCharValueSuggestions.Pop();
 
-                CharacteristicValue suggestion;
+                while (excessiveSuggestions > 0)
+                    _pendingCharValueSuggestions.Pop();
+
                 if (_pendingCharValueSuggestions.TryPeek(out suggestion!))
                     return suggestion;
                 else
@@ -136,7 +149,13 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             }
             else
             {
-                conclusion = null;
+                if (excessiveSuggestions > 0)
+                    _pendingCharValueSuggestions.Pop();
+                
+                if (_pendingCharValueSuggestions.TryPeek(out suggestion!))
+                    return suggestion;
+
+                _conclusion = null;
                 CurrentState = IBallGameInferenceEngine.State.Conclusion;
             }
             
@@ -230,7 +249,10 @@ namespace BallGameExpertSystem.Core.InferenceEngine
 
         private void ProcessSingleConclusion(FinalConclusion conclusion)
         {
-            this.conclusion = conclusion;
+            if (_availableCharacteristics == null)
+                throw new InferenceEngineNoContextException(this);
+
+            _conclusion = conclusion;
 
             List<AtomicRule> reducedRelatedAtomicRules = TryReduceAtomicRules(conclusion);
 
@@ -250,7 +272,9 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             }
 
             _pendingCharValueSuggestions = new Stack<CharacteristicValue>(
-                unobservedRelatedAtomicRules.Select(ar => ar.CharacteristicValue)
+                unobservedRelatedAtomicRules.Where(ar => _availableCharacteristics
+                                                .Contains(ar.CharacteristicValue.Characteristic))
+                                            .Select(ar => ar.CharacteristicValue)
                                             .OrderBy(cv => cv.Characteristic));
         }
 
@@ -299,7 +323,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             foreach (var group in multipleValueCharacteristicGroups)
             {
                 if (group.Key.PossibleValues.Keys.SequenceEqual(
-                    group.Select(ar => ar.CharacteristicValue.Value)))
+                        group.Select(ar => ar.CharacteristicValue.Value)))
                     redundant.AddRange(group);
             }
 
@@ -369,7 +393,9 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             _knownCharacteristicValues.Clear();
             _availableCharacteristics = _characteristics.ToList();
 
-            conclusion = null;
+            _pendingCharValueSuggestions = null;
+            _conclusion = null;
+
             CurrentState = IBallGameInferenceEngine.State.Ready;
         }
 
