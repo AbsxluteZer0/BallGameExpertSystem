@@ -1,11 +1,11 @@
-﻿namespace BallGameExpertSystem.Core.Model.Rules
-{
-    public class AtomicRule : Rule, IEquatable<AtomicRule>
+﻿namespace BallGameExpertSystem.Core.Model.Rules;
+
+    public class AtomicRule : Rule, IEquatable<AtomicRule>, IEquatable<Rule>
     {
         private CharacteristicValue _value;
         public CharacteristicValue CharacteristicValue => _value;
 
-        public override List<Rule>? Predcessors => null;
+        public override List<Rule>? Predecessors => null;
         public override List<Rule>? Successors { get; } = new List<Rule>();
         public override int Depth => 0;
         protected override int CalculateDepth() => 0;
@@ -25,12 +25,37 @@
                 IsObserved = false;
         }
 
+        public override void AddPredecessor(Rule predecessor)
+        {
+            throw new MissingMethodException(
+                $"Predecessor-related methods are disabled for {nameof(AtomicRule)} class.");
+        }
+
+        public override void DisjointPredecessor(Rule predecessor)
+        {
+            throw new MissingMethodException(
+                $"Predecessor-related methods are disabled for {nameof(AtomicRule)} class.");
+        }
+
         public bool Equals(AtomicRule? other)
         {
-            if (other  == null) 
-                return false;
+            return other != null 
+                && _value.Equals(other._value);
+        }
 
-            return _value.Equals(other._value);
+        public bool Equals(Rule? other)
+        {
+            return Equals(other as AtomicRule);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as AtomicRule);
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
         }
     }
-}
+

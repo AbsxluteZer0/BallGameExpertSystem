@@ -4,20 +4,20 @@ namespace BallGameExpertSystem.Core.Model.Rules
 {
     public class ANDRule : Rule, IEquatable<ANDRule>
     {
-        public override List<Rule>? Predcessors { get; }
+        public override List<Rule> Predecessors { get; }
         public override List<Rule>? Successors { get; } = new List<Rule>();
 
-        public ANDRule(IEnumerable<Rule> predcessors)
+        public ANDRule(IEnumerable<Rule> predecessors)
         {
-            Predcessors = predcessors.ToList();
-            predcessors.ForEach(p => p.Successors?.Add(this));
+            Predecessors = predecessors.ToList();
+            predecessors.ForEach(p => p.Successors?.Add(this));
         }
 
         public override void Update(IEnumerable<CharacteristicValue>? characteristicValues = null)
         {
-            if (Predcessors == null) return;
+            if (Predecessors == null) return;
 
-            if (Predcessors.All(r => r.IsObserved))
+            if (Predecessors.All(r => r.IsObserved))
                 IsObserved = true;
             else
                 IsObserved = false;
@@ -31,15 +31,26 @@ namespace BallGameExpertSystem.Core.Model.Rules
             if (other is FinalConclusion)
                 return false;
 
-            if (Predcessors == null
-                && other.Predcessors == null)
+            if (Predecessors == null
+                && other.Predecessors == null)
                 return true;
 
-            if (Predcessors == null
-                || other.Predcessors == null)
+            if (Predecessors == null
+                || other.Predecessors == null)
                 return false;
 
-            return true;
+            return other.Predecessors
+                        .SequenceEqual(Predecessors);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as ANDRule);
+        }
+
+        public override int GetHashCode()
+        {
+            return Predecessors.GetHashCode();
         }
     }
 }

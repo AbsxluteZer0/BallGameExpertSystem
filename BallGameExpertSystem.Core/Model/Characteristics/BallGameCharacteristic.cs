@@ -39,6 +39,16 @@ namespace BallGameExpertSystem.Core.Model.Characteristics
             return Id == other.Id;
         }
 
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as BallGameCharacteristic);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
         public bool Takes(string value)
         {
             return PossibleValues.ContainsValue(value);

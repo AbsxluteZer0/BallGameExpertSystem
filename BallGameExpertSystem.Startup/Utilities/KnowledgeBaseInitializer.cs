@@ -59,14 +59,14 @@ namespace BallGameExpertSystem.Startup.Utilities
                 });
 
             var whereHeld = new PlaceBallGameCharacteristic(
-                "Where Held", new[]
+                "Held", new[]
                 {
                     Outdoors,
                     Indoors
                 });
 
             var covering = new PlaceBallGameCharacteristic(
-                "Covering", new[]
+                "Floor Covering", new[]
                 {
                     Lawn,
                     Soil,
@@ -75,7 +75,7 @@ namespace BallGameExpertSystem.Startup.Utilities
                 });
 
             var area = new PlaceBallGameCharacteristic(
-                "Area", new[]
+                "Ground Area", new[]
                 {
                     Small,
                     Medium,
@@ -90,13 +90,25 @@ namespace BallGameExpertSystem.Startup.Utilities
                 });
 
             var playersInTeam = new TeamBallGameCharacteristic(
-                "Players in a Team", new[]
+                "Number of Players in a Team", new[]
                 {
                     One,
                     Two,
                     Five,
                     Eleven
                 });
+
+            numberOfTeams.Priority = 0;
+            playersInTeam.Priority = 1;
+            ballMaterial.Priority = 2;
+            ballColor.Priority = 3;
+            ballShape.Priority = 4;
+            ballSize.Priority = 5;
+            ballElasticity.Priority = 5;
+            groundType.Priority = 6;
+            whereHeld.Priority = 7;
+            covering.Priority = 8;
+            area.Priority = 9;
 
             knowledgeBase.AddCharacteristics(new BallGameCharacteristic[]
             {

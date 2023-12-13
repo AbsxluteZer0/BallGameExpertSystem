@@ -31,6 +31,12 @@ namespace BallGameExpertSystem.ConsoleUI.UserInterface
             return inputString;
         }
 
+        public void ConfirmationRequest(string message)
+        {
+            ShowMessage(message);
+            Console.Read();
+        }
+
         public bool AskClosedQuestion(string question)
         {
             var options = new Dictionary<int, string>(2)

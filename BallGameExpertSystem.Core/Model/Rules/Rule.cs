@@ -4,7 +4,7 @@
     {
         private bool isObserved;
 
-        public virtual List<Rule>? Predcessors { get; }
+        public virtual List<Rule>? Predecessors { get; }
         public virtual List<Rule>? Successors { get; }
         public virtual bool IsObserved
         {
@@ -20,12 +20,11 @@
 
         protected virtual int CalculateDepth()
         {
-            if (Predcessors == null ||
-                Predcessors.Count == 0)
+            if (Predecessors == null ||
+                Predecessors.Count == 0)
                 return 0;
             else
-                return Predcessors.First()
-                    .CalculateDepth() + 1;
+                return Predecessors.Max(x => x.Depth) + 1;
         }
 
         public abstract void Update(IEnumerable<CharacteristicValue>? characteristicValues = null);
@@ -41,15 +40,27 @@
             IsLocked = false;
         }
 
-        public virtual bool IsPredcessorOf(Rule other)
+        public virtual bool IsPredecessorOf(Rule other)
         {
             if (Successors == null)
                 return false;
             else if (Successors.Contains(other)
-                    || Successors.Any(s => s.IsPredcessorOf(other)))
+                    || Successors.Any(s => s.IsPredecessorOf(other)))
                 return true;
 
             return false;
+        }
+
+        public virtual void AddPredecessor(Rule predecessor)
+        {
+            Predecessors?.Add(predecessor);
+            predecessor.Successors?.Add(this);
+        }
+
+        public virtual void DisjointPredecessor(Rule predecessor)
+        {
+            predecessor.Successors?.Remove(this);
+            Predecessors?.Remove(predecessor);
         }
     }
 }

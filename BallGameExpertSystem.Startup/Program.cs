@@ -24,7 +24,7 @@ namespace BallGameExpertSystem.Startup
 
             expertSystem.Conclude(); // starting point
 
-            userInterface.RequestInput("Press any key to continue...");
+            userInterface.ConfirmationRequest("Press any key to continue...");
         }
     }
 }

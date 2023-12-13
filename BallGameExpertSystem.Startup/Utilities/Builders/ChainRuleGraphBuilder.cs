@@ -10,15 +10,12 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
     {
         private readonly RuleGraphBuilderStore _ruleGraphBuilderStore;
         private readonly CharacteristicRuleGraphBuilder _characteristicRuleGraphBuilder;
-        private readonly ValueRuleGraphBuilder _valueRuleGraphBuilder;
 
         public ChainRuleGraphBuilder(RuleGraphBuilderStore ruleGraphBuilderStore,
-            CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder,
-            ValueRuleGraphBuilder valueRuleGraphBuilder)
+            CharacteristicRuleGraphBuilder characteristicRuleGraphBuilder)
         {
             _ruleGraphBuilderStore = ruleGraphBuilderStore;
             _characteristicRuleGraphBuilder = characteristicRuleGraphBuilder;
-            _valueRuleGraphBuilder = valueRuleGraphBuilder;
         }
 
         /*
@@ -27,7 +24,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
          * All methods except OrValue are trying to close the disjunction first
          * to make sure all rules added in that way are saved.
          * 
-         * There is probably a more sophisticated way to do that.
+         * There is probably more sophisticated way of doing that.
         */
 
         public ChainRuleGraphBuilder Or(string value)
@@ -68,16 +65,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
                 _ruleGraphBuilderStore.FinalConjunctionRules,
                 conclusion);
 
-            AddRuleGraphToKnowledgeBase(finalConclusion, _ruleGraphBuilderStore.KnowledgeBase);
-        }
-
-
-        private void AddRuleGraphToKnowledgeBase(Rule rule,  IBallGameKnowledgeBase knowledgeBase) 
-        {
-            knowledgeBase.AddRule(rule);
-
-            if (rule.Predcessors != null)
-                rule.Predcessors.ForEach(r => AddRuleGraphToKnowledgeBase(r, knowledgeBase));
+            _ruleGraphBuilderStore.KnowledgeBase.AddRule(finalConclusion);
         }
     }
 }

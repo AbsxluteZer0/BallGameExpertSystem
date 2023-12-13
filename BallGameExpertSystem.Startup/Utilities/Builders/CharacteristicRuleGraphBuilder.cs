@@ -22,7 +22,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 
         public ValueRuleGraphBuilder Characteristic(BallGameCharacteristic characteristic)
         {
-            if (!_knowledgeBase.ContainsCharacteristic(characteristic))
+            if (!_ruleGraphBuilderStore.KnowledgeBase.ContainsCharacteristic(characteristic))
                 throw new ArgumentException("There's no such characteristic in the knowledge base.", nameof(characteristic));
 
             CurrentCharacteristic = characteristic;

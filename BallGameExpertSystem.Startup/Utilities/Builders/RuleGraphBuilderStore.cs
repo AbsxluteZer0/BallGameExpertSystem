@@ -5,6 +5,8 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 {
     internal class RuleGraphBuilderStore
     {
+        private Rule? _lastAdded;
+
         public IBallGameKnowledgeBase KnowledgeBase { get; set; }
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
 
         public void AddSingleRule(Rule rule)
         {
-            FinalConjunctionRules.Add(rule);
+            FinalConjunctionRules.Add(_lastAdded = rule);
             CurrentDisjunctionRules = new List<Rule> { rule };
         }
 
@@ -38,6 +40,9 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
             if (CurrentDisjunctionRules.Count <= 1)
                 throw new InvalidOperationException(
                     "Cannot perform a disjunction with less than 2 elements");
+
+            if (_lastAdded != null)
+                FinalConjunctionRules.Remove(_lastAdded);
 
             ORRule disjunction = new ORRule(CurrentDisjunctionRules);
             FinalConjunctionRules.Add(disjunction);

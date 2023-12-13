@@ -65,7 +65,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                 case IBallGameInferenceEngine.State.SingleSuggestion:
                     return SingleSuggestionInfer(input);
 
-                default: //Conclusion
+                default: // Conclusion
                     return null;
             }
         }
@@ -135,14 +135,18 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                     CurrentState = IBallGameInferenceEngine.State.Conclusion;
             }
             else
+            {
                 conclusion = null;
-
+                CurrentState = IBallGameInferenceEngine.State.Conclusion;
+            }
+            
             return null;
         }
 
         private void ProcessInput(CharacteristicValue input)
         {
-            if (_availableCharacteristics == null)
+            if (_availableCharacteristics == null
+                || _rules == null)
                 throw new InferenceEngineNoContextException(this);
 
             _knownCharacteristicValues.Add(input);
@@ -162,59 +166,65 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             return uniqueSuccessors;
         }
 
-        private IEnumerable<Rule> ObtainUniquePredcessors(IEnumerable<Rule> rules)
+        private IEnumerable<Rule> ObtainUniqueCommonSuccessors(IEnumerable<Rule> rules)
         {
-            var uniquePredcessors = new HashSet<Rule>();
+            return ObtainUniqueSuccessors(rules)
+                .Where(s => rules.All(r => r.IsPredecessorOf(s)));
+        }
+
+        private IEnumerable<Rule> ObtainUniquePredecessors(IEnumerable<Rule> rules)
+        {
+            var uniquePredecessors = new HashSet<Rule>();
 
             foreach (Rule rule in rules)
             {
-                if (rule.Predcessors != null)
-                    uniquePredcessors.UnionWith(rule.Predcessors);
+                if (rule.Predecessors != null)
+                    uniquePredecessors.UnionWith(rule.Predecessors);
             }
 
-            return uniquePredcessors;
+            return uniquePredecessors;
         }
 
         private IEnumerable<AtomicRule> GetAllRelatedAtomicRules(IEnumerable<Rule> rules)
         {
-            IEnumerable<Rule> interim = ObtainUniquePredcessors(rules);
+            IEnumerable<Rule> uniquePredcessors = ObtainUniquePredecessors(rules);
 
             var result = new HashSet<AtomicRule>();
 
             do
             {
                 IEnumerable<AtomicRule?> foundAtoms
-                    = interim.Where(r => r is AtomicRule)
+                    = uniquePredcessors.Where(r => r is AtomicRule)
                             .Select(fc => fc as AtomicRule);
 
                 if (foundAtoms.Any())
                     result.UnionWith(foundAtoms as IEnumerable<AtomicRule>);
 
-                interim = ObtainUniquePredcessors(interim);
+                uniquePredcessors = ObtainUniquePredecessors(uniquePredcessors);
 
-            } while (interim.Any());
+            } while (uniquePredcessors.Any());
 
             return result;
         }
 
         private IEnumerable<FinalConclusion> GetPossibleConclusions(IEnumerable<Rule> observedRules)
         {
-            IEnumerable<Rule> interim = ObtainUniqueSuccessors(observedRules);
+            IEnumerable<Rule> uniqueCommonSuccessors = ObtainUniqueCommonSuccessors(observedRules);
 
             var result = new HashSet<FinalConclusion>();
 
             do
             {
                 IEnumerable<FinalConclusion?> foundConclusions
-                    = interim.Where(r => r is FinalConclusion)
-                            .Select(fc => fc as FinalConclusion);
+                    = uniqueCommonSuccessors.Where(r => r is FinalConclusion)
+                                      .Select(fc => fc as FinalConclusion);
 
                 if (foundConclusions != null)
                     result.UnionWith(foundConclusions as IEnumerable<FinalConclusion>);
 
-                interim = ObtainUniqueSuccessors(interim);
+                uniqueCommonSuccessors = ObtainUniqueCommonSuccessors(uniqueCommonSuccessors);
 
-            } while (interim.Any());
+            } while (uniqueCommonSuccessors.Any());
 
             return result;
         }
@@ -248,15 +258,15 @@ namespace BallGameExpertSystem.Core.InferenceEngine
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="conclusion"></param>
+        /// <param name="possibleConclusions"></param>
         /// <returns>
         /// 1) related atomic rules w/o those unnecessary to ask;<br/>
         /// 2) all related atomic rules if there is nothing to reduce.
         /// </returns>
-        private List<AtomicRule> TryReduceAtomicRules(FinalConclusion conclusion)
+        private List<AtomicRule> TryReduceAtomicRules(FinalConclusion possibleConclusions) // IEnumerable<FinalConclusion>
         {
             List<AtomicRule> relatedAtomicRules
-               = GetAllRelatedAtomicRules(new List<FinalConclusion>() { conclusion }).ToList();
+               = GetAllRelatedAtomicRules(new List<FinalConclusion>() { possibleConclusions }).ToList();
 
             var multipleValueCharacteristicGroups
                 = relatedAtomicRules.GroupBy(ar => ar.CharacteristicValue.Characteristic)
@@ -270,7 +280,7 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                 foreach (var atomicRule in redundant)
                 {
                     atomicRule.Successors?
-                              .Where(s => s.IsPredcessorOf(conclusion))
+                              .Where(s => s.IsPredecessorOf(possibleConclusions))
                               .ForEach(s => s.LockObserved());
 
                     _availableCharacteristics?.Remove(atomicRule.CharacteristicValue.Characteristic);
@@ -302,15 +312,18 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             IEnumerable<AtomicRule> relatedAtomicRules
                = GetAllRelatedAtomicRules(possibleConclusions);
 
+            IEnumerable<AtomicRule> availableAtomicRules
+                = FilterAtomicRulesByAvailableCharacteristics(relatedAtomicRules);
+
             Dictionary<AtomicRule, int> atomicRulesAndNumbersOfMatchingSucceedingConclusions =
                 new Dictionary<AtomicRule, int>();
 
-            foreach (var atomicRule in relatedAtomicRules)
+            foreach (var atomicRule in availableAtomicRules)
             {
                 int c = 0;
 
                 foreach (var conclusion in possibleConclusions)
-                    if (atomicRule.IsPredcessorOf(conclusion))
+                    if (atomicRule.IsPredecessorOf(conclusion))
                         c++;
 
                 atomicRulesAndNumbersOfMatchingSucceedingConclusions[atomicRule] = c;
@@ -328,6 +341,15 @@ namespace BallGameExpertSystem.Core.InferenceEngine
                 .FirstOrDefault();
 
             return maxMatchingLeastPriorityRule?.CharacteristicValue.Characteristic;
+        }
+
+        private IEnumerable<AtomicRule> FilterAtomicRulesByAvailableCharacteristics(IEnumerable<AtomicRule> relatedAtomicRules)
+        {
+            if (_availableCharacteristics == null)
+                throw new InferenceEngineNoContextException(this);
+
+            return relatedAtomicRules.Where(r => _availableCharacteristics
+                                     .Contains(r.CharacteristicValue.Characteristic));
         }
 
         public void SetContext(IBallGameKnowledgeBase knowledgeBase)

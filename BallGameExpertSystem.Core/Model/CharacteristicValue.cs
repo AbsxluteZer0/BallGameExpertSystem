@@ -8,7 +8,7 @@ namespace BallGameExpertSystem.Core.Model
 
         public int Value { get; set; }
 
-        public CharacteristicValue(BallGameCharacteristic characteristic, int value)
+        public CharacteristicValue(BallGameCharacteristic characteristic, int value = -1)
         {
             Characteristic = characteristic;
             Value = value;
@@ -22,7 +22,8 @@ namespace BallGameExpertSystem.Core.Model
                 = characteristic.PossibleValues;
 
             if (possibleValues.ContainsValue(value))
-                Value = possibleValues.First(x => x.Value == value).Key;
+                Value = possibleValues.First(x => x.Value == value)
+                                      .Key;
             else
                 throw new ArgumentOutOfRangeException(nameof(value));
         }
@@ -33,6 +34,11 @@ namespace BallGameExpertSystem.Core.Model
 
             return Characteristic.Equals(other.Characteristic)
                 && Value == other.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Characteristic, Value);
         }
     }
 }

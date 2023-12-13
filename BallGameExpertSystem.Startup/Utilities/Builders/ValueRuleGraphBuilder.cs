@@ -43,7 +43,7 @@ namespace BallGameExpertSystem.Startup.Utilities.Builders
                 _ruleGraphBuilderStore.AddRuleToDisjunction(atomicRule);
             }
 
-            return new ChainRuleGraphBuilder(_ruleGraphBuilderStore, _characteristicRuleGraphBuilde, this);
+            return new ChainRuleGraphBuilder(_ruleGraphBuilderStore, _characteristicRuleGraphBuilde);
         }
     }
 }

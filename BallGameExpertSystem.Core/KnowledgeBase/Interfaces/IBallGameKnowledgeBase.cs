@@ -40,15 +40,5 @@ namespace BallGameExpertSystem.Core.KnowledgeBase.Interfaces
         {
             Rules.Add(rule);
         }
-
-        public bool ContainsRule(Rule rule)
-        {
-            return Rules.Contains(rule);
-        }
-
-        Rule? FindRuleOrDefault(Rule rule)
-        {
-            return Rules.Find(r => r.Equals(rule));
-        }
     }
 }

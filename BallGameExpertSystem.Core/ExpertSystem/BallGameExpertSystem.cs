@@ -91,12 +91,12 @@ namespace BallGameExpertSystem.Core
             IDictionary<int, string> options = characteristic.PossibleValues;
 
             bool answerIsPositive = _userInterface.AskClosedQuestion(
-                $"Is {characteristic.Name.ToLower()} equal to {options[value].ToLower()}?");
+                $"Is {characteristic.Name.ToLower()} {options[value].ToLower()}?");
 
             if (answerIsPositive)
                 return characteristicValue;
             else
-                return new CharacteristicValue(characteristic, -1);
+                return new CharacteristicValue(characteristic);
         }
     }
 }
