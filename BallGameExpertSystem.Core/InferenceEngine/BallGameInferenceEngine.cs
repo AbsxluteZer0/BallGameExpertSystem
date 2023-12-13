@@ -150,10 +150,12 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             else
             {
                 if (excessiveSuggestions > 0)
+                {
                     _pendingCharValueSuggestions.Pop();
-                
-                if (_pendingCharValueSuggestions.TryPeek(out suggestion!))
-                    return suggestion;
+
+                    if (_pendingCharValueSuggestions.TryPeek(out suggestion!))
+                        return suggestion;
+                }
 
                 _conclusion = null;
                 CurrentState = IBallGameInferenceEngine.State.Conclusion;
@@ -240,9 +242,13 @@ namespace BallGameExpertSystem.Core.InferenceEngine
             } while (uniqueSuccessors.Any());
 
 
+            // atomic rules are always present so this null reference is impossible unless
+            // the architecture is changed
             var commonRelatedFinalConclusions
-                = relatedFinalConclusions.Where(fc => 
-                    observedRules.All(obs => obs.IsPredecessorOf(fc)));
+                = relatedFinalConclusions.Where(fc =>
+                    observedRules.Where(obs => obs is AtomicRule)
+                                 .Select(obs => obs as AtomicRule)
+                                 .All(ar => ar.IsPredecessorOf(fc)));
 
             return commonRelatedFinalConclusions;
         }
